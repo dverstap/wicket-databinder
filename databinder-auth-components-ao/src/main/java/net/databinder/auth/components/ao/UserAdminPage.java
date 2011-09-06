@@ -11,10 +11,9 @@ import net.databinder.components.ao.DataForm;
 import net.databinder.models.ao.EntityListModel;
 import net.databinder.models.ao.EntityModel;
 
-import org.apache.wicket.authorization.strategies.role.Roles;
+import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.model.IModel;
 
 /**
  * User administration page. Lists all users, allows editing usernames, passwords, and roles.
@@ -30,51 +29,52 @@ import org.apache.wicket.model.IModel;
  * @see net.databinder.auth.AuthSession
  */
 
-public class UserAdminPage<T extends DataUserEntity<K>, K extends Serializable> 
+public class UserAdminPage<T extends DataUserEntity<K>, K extends Serializable>
 		extends UserAdminPageBase<T> {
 	private DataForm<T, K> form;
-	
+
 	@Override
-	protected Form<T> adminForm(String id, Class<T> userClass) {
+	protected Form<T> adminForm(final String id, final Class<T> userClass) {
 		return form = new DataForm<T, K>(id, new EntityModel<T, K>(userClass) {
 			@Override
 			protected void putDefaultProperties(
-					Map<String, Object> propertyStore) {
+					final Map<String, Object> propertyStore) {
 				propertyStore.put("roles", new Roles(Roles.USER));
-			}			
+			}
 		}) {
 			@Override
 			protected void onSubmit() {
 				if (!getEntityModel().isBound()) {
-					Map<String, Object> map = (Map<String, Object>) getModelObject();
+					final Map<String, Object> map = (Map<String, Object>) getModelObject();
 					map.put("roleString", ((Roles)map.remove("roles")).toString());
 				}
 				super.onSubmit();
 			}
 		};
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	@Override
-	protected void setPassword(String password) {
-		if (form.getEntityModel().isBound())
+	protected void setPassword(final String password) {
+		if (form.getEntityModel().isBound()) {
 			super.setPassword(password);
-		else
+		} else {
 			((Map)getUserForm().getModelObject()).put("passwordHash", UserHelper.getHash(password));
+		}
 	}
 
 	@Override
-	protected Button deleteButton(String id) {
+	protected Button deleteButton(final String id) {
 		return form.new DeleteButton(id);
 	}
 
 	@Override
-	protected DataUserStatusPanelBase statusPanel(String id) {
+	protected DataUserStatusPanelBase statusPanel(final String id) {
 		return new DataUserStatusPanel(id);
 	}
 
 	@Override
-	protected EntityListModel<T> userList(Class<T> userClass) {
+	protected EntityListModel<T> userList(final Class<T> userClass) {
 		return new EntityListModel<T>(userClass);
 	}
 

@@ -1,20 +1,15 @@
 /*
- * Databinder: a simple bridge from Wicket to Hibernate
- * Copyright (C) 2006  Nathan Hamblen nathan@technically.us
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
+ * Databinder: a simple bridge from Wicket to Hibernate Copyright (C) 2006
+ * Nathan Hamblen nathan@technically.us This library is free software; you can
+ * redistribute it and/or modify it under the terms of the GNU Lesser General
+ * Public License as published by the Free Software Foundation; either version
+ * 2.1 of the License, or (at your option) any later version. This library is
+ * distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details. You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 package net.databinder.auth.hib;
 
@@ -47,140 +42,150 @@ import org.hibernate.cfg.AnnotationConfiguration;
 import org.hibernate.criterion.Restrictions;
 
 /**
- * Adds basic authentication functionality to DataApplication. This class is a derivative
- * of Wicket's AuthenticatedWebApplication, brought into the DataApplication hierarchy
- * and including light user specifications in DataUser. You are encouraged to override
- * getUserClass() to implement your own user entity, possibly by extending UserBase.
- * It is also possible to use Databinder authentication without extending this base class
- * by implementing IAuthSettings.
- * <p>Text appearing in authentication components can be overriden for any language, using
- * resource keys listed in their documentation. Except as otherwise noted, these resources
- * can be housed in the application class's properties file, so that subclasses of  the pages
- * and panels are not necessarily required.
+ * Adds basic authentication functionality to DataApplication. This class is a
+ * derivative of Wicket's AuthenticatedWebApplication, brought into the
+ * DataApplication hierarchy and including light user specifications in
+ * DataUser. You are encouraged to override getUserClass() to implement your own
+ * user entity, possibly by extending UserBase. It is also possible to use
+ * Databinder authentication without extending this base class by implementing
+ * IAuthSettings.
+ * <p>
+ * Text appearing in authentication components can be overriden for any
+ * language, using resource keys listed in their documentation. Except as
+ * otherwise noted, these resources can be housed in the application class's
+ * properties file, so that subclasses of the pages and panels are not
+ * necessarily required.
  * @see AuthApplication
  * @see DataUser
  * @author Nathan Hamblen
  */
-public abstract class AuthDataApplication extends DataApplication
-implements IUnauthorizedComponentInstantiationListener, IRoleCheckingStrategy, AuthApplication {
+public abstract class AuthDataApplication extends DataApplication implements
+    IUnauthorizedComponentInstantiationListener, IRoleCheckingStrategy,
+    AuthApplication {
 
-	/**
-	 * Internal initialization. Client applications should not normally override
-	 * or call this method.
-	 */
-	@Override
-	protected void internalInit() {
-		super.internalInit();
-		authInit();
-	}
+  /**
+   * Internal initialization. Client applications should not normally override
+   * or call this method.
+   */
+  @Override
+  protected void internalInit() {
+    super.internalInit();
+    authInit();
+  }
 
-	/**
-	 * Sets Wicket's security strategy for role authorization and appoints this
-	 * object as the unauthorized instatiation listener. Called automatically on start-up.
-	 */
-	protected void authInit() {
-		getSecuritySettings().setAuthorizationStrategy(new RoleAuthorizationStrategy(this));
-		getSecuritySettings().setUnauthorizedComponentInstantiationListener(this);
-	}
+  /**
+   * Sets Wicket's security strategy for role authorization and appoints this
+   * object as the unauthorized instatiation listener. Called automatically on
+   * start-up.
+   */
+  protected void authInit() {
+    getSecuritySettings().setAuthorizationStrategy(
+        new RoleAuthorizationStrategy(this));
+    getSecuritySettings().setUnauthorizedComponentInstantiationListener(this);
+  }
 
-	/**
-	 * @return new AuthDataSession
-	 * @see AuthDataSession
-	 */
-	@Override
-	public Session newSession(final Request request, final Response response) {
-		return new AuthDataSession(request);
-	}
-	/**
-	 * Adds to the configuration whatever DataUser class is defined.
-	 */
-	@Override
-	protected void configureHibernate(final AnnotationConfiguration config) {
-		super.configureHibernate(config);
-		config.addAnnotatedClass(getUserClass());
-	}
+  /**
+   * @return new AuthDataSession
+   * @see AuthDataSession
+   */
+  @Override
+  public Session newSession(final Request request, final Response response) {
+    return new AuthDataSession(request);
+  }
 
-	/**
-	 * Sends to sign in page if not signed in, otherwise throws UnauthorizedInstantiationException.
-	 */
-	public void onUnauthorizedInstantiation(final Component component) {
-		if (((AuthSession)Session.get()).isSignedIn()) {
-			throw new UnauthorizedInstantiationException(component.getClass());
-		}
-		else {
-			throw new RestartResponseAtInterceptPageException(getSignInPageClass());
-		}
-	}
+  /**
+   * Adds to the configuration whatever DataUser class is defined.
+   */
+  @Override
+  protected void configureHibernate(final AnnotationConfiguration config) {
+    super.configureHibernate(config);
+    config.addAnnotatedClass(getUserClass());
+  }
 
-	/**
-	 * Passes query on to the DataUser object if signed in.
-	 */
-	public final boolean hasAnyRole(final Roles roles) {
-		final DataUser user = ((AuthSession)Session.get()).getUser();
-		if (user != null) {
+  /**
+   * Sends to sign in page if not signed in, otherwise throws
+   * UnauthorizedInstantiationException.
+   */
+  public void onUnauthorizedInstantiation(final Component component) {
+    if (((AuthSession) Session.get()).isSignedIn()) {
+      throw new UnauthorizedInstantiationException(component.getClass());
+    } else {
+      throw new RestartResponseAtInterceptPageException(getSignInPageClass());
+    }
+  }
+
+  /**
+   * Passes query on to the DataUser object if signed in.
+   */
+  public final boolean hasAnyRole(final Roles roles) {
+    final DataUser user = ((AuthSession) Session.get()).getUser();
+    if (user != null) {
       for (final String role : roles) {
         if (user.hasRole(role)) {
           return true;
         }
       }
     }
-		return false;
-	}
+    return false;
+  }
 
-	/**
-	 * Return user object by matching against a "username" property. Override
-	 * if you have a differently named property.
-	 * @return DataUser for the given username.
-	 */
-	public DataUser getUser(final String username) {
-		return (DataUser) Databinder.getHibernateSession().createCriteria(getUserClass())
-			.add(Restrictions.eq("username", username)).uniqueResult();
-	}
+  /**
+   * Return user object by matching against a "username" property. Override if
+   * you have a differently named property.
+   * @return DataUser for the given username.
+   */
+  public DataUser getUser(final String username) {
+    return (DataUser) Databinder.getHibernateSession()
+        .createCriteria(getUserClass())
+        .add(Restrictions.eq("username", username)).uniqueResult();
+  }
 
-	/**
-	 * Override if you need to customize the sign-in page.
-	 * @return page to sign in users
-	 */
-	public Class< ? extends WebPage> getSignInPageClass() {
-		return DataSignInPage.class;
-	}
+  /**
+   * Override if you need to customize the sign-in page.
+   * @return page to sign in users
+   */
+  public Class<? extends WebPage> getSignInPageClass() {
+    return DataSignInPage.class;
+  }
 
-	/**
-	 * @return app-salted MessageDigest.
-	 */
-	public MessageDigest getDigest() {
-		try {
-			final MessageDigest digest = MessageDigest.getInstance("SHA");
-			digest.update(getSalt());
-			return digest;
-		} catch (final NoSuchAlgorithmException e) {
-			throw new RuntimeException("SHA Hash algorithm not found.", e);
-		}
-	}
+  /**
+   * @return app-salted MessageDigest.
+   */
+  public MessageDigest getDigest() {
+    try {
+      final MessageDigest digest = MessageDigest.getInstance("SHA");
+      digest.update(getSalt());
+      return digest;
+    } catch (final NoSuchAlgorithmException e) {
+      throw new RuntimeException("SHA Hash algorithm not found.", e);
+    }
+  }
 
-	/**
-	 * Get the restricted token for a user, using IP addresses as location parameter. This implementation
-	 * combines the "X-Forwarded-For" header with the remote address value so that unique
-	 * values result with and without proxying. (The forwarded header is not trusted on its own
-	 * because it can be most easily spoofed.)
-	 * @param user source of token
-	 * @return restricted token
-	 */
-	public String getToken(final DataUser user) {
-	  final RequestCycle rc = RequestCycle.get();
+  /**
+   * Get the restricted token for a user, using IP addresses as location
+   * parameter. This implementation combines the "X-Forwarded-For" header with
+   * the remote address value so that unique values result with and without
+   * proxying. (The forwarded header is not trusted on its own because it can be
+   * most easily spoofed.)
+   * @param user source of token
+   * @return restricted token
+   */
+  public String getToken(final DataUser user) {
+    final RequestCycle rc = RequestCycle.get();
     final Response or = rc.getOriginalResponse();
     final WebRequest wr = (WebRequest) rc.getRequest();
 
-    final HttpServletRequest req =  (HttpServletRequest) wr.getContainerRequest();
+    final HttpServletRequest req =
+        (HttpServletRequest) wr.getContainerRequest();
     wr.getContainerRequest();
-		String fwd = wr.getHeader("X-Forwarded-For");
-		if (fwd == null) {
+    String fwd = wr.getHeader("X-Forwarded-For");
+    if (fwd == null) {
       fwd = "nil";
     }
-		final MessageDigest digest = getDigest();
-		user.getPassword().update(digest);
-		digest.update((fwd + "-" + req.getRemoteAddr()).getBytes());
-		final byte[] hash = digest.digest(user.getUsername().getBytes());
-		return or.encodeURL(new String(hash));
-	}
+    final MessageDigest digest = getDigest();
+    user.getPassword().update(digest);
+    digest.update((fwd + "-" + req.getRemoteAddr()).getBytes());
+    final byte[] hash = digest.digest(user.getUsername().getBytes());
+    return or.encodeURL(new String(hash));
+  }
 }

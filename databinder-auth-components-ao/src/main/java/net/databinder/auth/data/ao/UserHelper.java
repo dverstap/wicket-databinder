@@ -7,7 +7,7 @@ import net.databinder.auth.AuthApplication;
 import net.databinder.auth.data.DataPassword;
 
 import org.apache.wicket.Application;
-import org.apache.wicket.authorization.strategies.role.Roles;
+import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 
 /**
  * Helper for UserBase, handles password hashing and virtual collection of roles (from roleString).
@@ -16,49 +16,51 @@ import org.apache.wicket.authorization.strategies.role.Roles;
  */
 public class UserHelper {
 	UserBase user;
-	
-	public UserHelper(UserBase user) {
+
+	public UserHelper(final UserBase user) {
 		this.user = user;
 	}
-	
-	public static byte[] getHash(String string) {
-		MessageDigest md = ((AuthApplication)Application.get()).getDigest();
+
+	public static byte[] getHash(final String string) {
+		final MessageDigest md = ((AuthApplication)Application.get()).getDigest();
 		return md.digest(string.getBytes());
 	}
-	
+
 	public DataPassword getPassword() {
 		return new DataPassword() {
-			public void change(String password) {
+			public void change(final String password) {
 				user.setPasswordHash(getHash(password));
 			}
-			public boolean matches(String password) {
+			public boolean matches(final String password) {
 				return Arrays.equals(getHash(password), user.getPasswordHash());
 			}
-			public void update(MessageDigest digest) {
+			public void update(final MessageDigest digest) {
 				digest.update(user.getPasswordHash());
 			}
-		}; 
+		};
 	}
-	
-	public void setRoleString(String roleString) {
+
+	public void setRoleString(final String roleString) {
 		user.setRoleString(roleString);
 	}
-	
+
 	public Roles getRoles() {
 		String roleString = user.getRoleString();
-		if (roleString == null) roleString = "";
+		if (roleString == null) {
+			roleString = "";
+		}
 		return new Roles(roleString);
 	}
-	
-	public void setRoles(Roles roles) {
+
+	public void setRoles(final Roles roles) {
 		user.setRoleString(roles.toString());
 	}
-	
-	public boolean hasRole(String role) {
+
+	public boolean hasRole(final String role) {
 		return getRoles().contains(role);
 	}
-	
-	public void update(MessageDigest digest) {
+
+	public void update(final MessageDigest digest) {
 		digest.update(user.getPasswordHash());
 	}
 }
