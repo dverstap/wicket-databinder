@@ -24,8 +24,6 @@ import net.databinder.hib.conv.components.IConversationPage;
 
 import org.apache.wicket.Page;
 import org.apache.wicket.request.cycle.RequestCycleContext;
-import org.hibernate.FlushMode;
-import org.hibernate.HibernateException;
 import org.hibernate.context.ManagedSessionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
