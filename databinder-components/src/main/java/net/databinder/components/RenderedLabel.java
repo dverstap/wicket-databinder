@@ -27,7 +27,6 @@ import org.apache.wicket.markup.html.image.resource.RenderedDynamicImageResource
 import org.apache.wicket.model.IComponentInheritedModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.IWrapModel;
-import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.util.string.Strings;
 
 /*
@@ -560,7 +559,7 @@ public class RenderedLabel extends Image {
 	 *            Resource containing a TrueType font descriptor.
 	 * @return Plain, 16pt font derived from the resource.
 	 */
-	public static Font fontForResource(final AbstractResource fontRes) {
+	public static Font fontForResource(final FontPackageResource fontRes) {
 		try {
 			final InputStream is = fontRes.getResourceStream().getInputStream();
 			final Font font = Font.createFont(Font.TRUETYPE_FONT, is);

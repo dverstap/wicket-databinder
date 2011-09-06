@@ -18,24 +18,47 @@
  */
 package net.databinder.components;
 
+import org.apache.wicket.Component;
+import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.resource.TextTemplateResourceReference;
+import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.request.resource.CssResourceReference;
 
 /**
  * Component for a stylesheet link. The stylesheet is expected to be named
- * &lt;ClassName&gt;.css for the class specified in the constructor and be located in
- * the same package as that class.
+ * &lt;ClassName&gt;.css for the class specified in the constructor and be
+ * located in the same package as that class.
+ *
  * @author Nathan Hamblen
  */
-public class StyleLink extends TextTemplateResourceReference {
+
+public class StyleLink extends WebMarkupContainer {
 
 	/** Builds a StyleLinkbased on the given class. */
 	public StyleLink(final String id, final Class pageClass) {
-		super(id, pageClass, pageClass.getSimpleName() + ".css", "href");
+		super(id);
+		add(new Behavior() {
+			@Override
+			public void renderHead(final Component component,
+					final IHeaderResponse response) {
+				response.renderCSSReference(new CssResourceReference(pageClass,
+						"cssResource"));
+			}
+		});
 	}
 
-	protected StyleLink(final String id, final Class pageClass, final String filename) {
-		super(id, pageClass, filename, "href");
+	protected StyleLink(final String id, final Class pageClass,
+			final String filename) {
+		super(id);
+		add(new Behavior() {
+			@Override
+			public void renderHead(final Component component,
+					final IHeaderResponse response) {
+				response.renderCSSReference(new CssResourceReference(pageClass,
+						"cssResource", getLocale(), filename, null));
+			}
+		});
 	}
 
 	/** Sets appropriate href, type, and rel values for the stylesheet. */
