@@ -20,9 +20,9 @@ import org.hibernate.Session;
  * href="http://java.sun.com/docs/books/tutorial/uiswing/components/tree.html">How
  * to Use Trees</a> tutorial, example DynamicTreeDemo.
  * </p>
- * 
+ *
  * @author Thomas Kappler
- * 
+ *
  * @param <T>
  *            see {@link DataTree}
  */
@@ -30,22 +30,22 @@ public class DataTreeDeleteButton<T extends DataTreeObject<T>> extends AjaxButto
 
 	private SingleSelectionDataTree<T> tree;
 	private boolean deleteOnlyLeafs = true;
-	
-	public DataTreeDeleteButton(String id, SingleSelectionDataTree<T> tree) {
+
+	public DataTreeDeleteButton(final String id, final SingleSelectionDataTree<T> tree) {
 		super(id);
 		this.tree = tree;
 		setDefaultFormProcessing(false);
 	}
 
-	public DataTreeDeleteButton(String id, SingleSelectionDataTree<T> tree,
-			boolean deleteOnlyLeafs) {
+	public DataTreeDeleteButton(final String id, final SingleSelectionDataTree<T> tree,
+			final boolean deleteOnlyLeafs) {
 		this(id, tree);
 		this.deleteOnlyLeafs = deleteOnlyLeafs;
 	}
 
 	@Override
 	public boolean isEnabled() {
-		DefaultMutableTreeNode selected = tree.getSelectedTreeNode(); 
+		final DefaultMutableTreeNode selected = tree.getSelectedTreeNode();
 		if (selected == null) {
 			return false;
 		}
@@ -55,31 +55,38 @@ public class DataTreeDeleteButton<T extends DataTreeObject<T>> extends AjaxButto
 		if (deleteOnlyLeafs) {
 			return selected.isLeaf();
 		}
-		
+
 		return true;
 	}
 
 	@Override
-	protected void onSubmit(AjaxRequestTarget target, Form form) {
-		DefaultMutableTreeNode selectedNode = tree.getSelectedTreeNode();
-		T selected = tree.getSelectedUserObject();
-	
-		DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) 
-				selectedNode.getParent();
-		T parent = tree.getDataTreeNode(parentNode);
+	protected void onSubmit(final AjaxRequestTarget target, final Form form) {
+		final DefaultMutableTreeNode selectedNode = tree.getSelectedTreeNode();
+		final T selected = tree.getSelectedUserObject();
 
-		if (parent != null)
+		final DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode)
+				selectedNode.getParent();
+		final T parent = tree.getDataTreeNode(parentNode);
+
+		if (parent != null) {
 			parent.getChildren().remove(selected);
+		}
 		parentNode.remove(selectedNode);
-		
-		Session session = Databinder.getHibernateSession();
+
+		final Session session = Databinder.getHibernateSession();
 		if (session.contains(selected)) {
 			session.delete(selected);
 			session.getTransaction().commit();
 		}
-		
+
 		tree.getTreeState().selectNode(parentNode, true);
 		tree.repaint(target);
 		tree.updateDependentComponents(target, parentNode);
+	}
+
+	@Override
+	protected void onError(final AjaxRequestTarget target, final Form<?> form) {
+		// TODO Auto-generated method stub
+
 	}
 }

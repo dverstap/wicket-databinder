@@ -6,12 +6,12 @@
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -23,9 +23,9 @@ import net.databinder.auth.AuthSession;
 import net.databinder.auth.components.DataSignInPageBase.ReturnPage;
 import net.databinder.auth.data.DataUser;
 
+import org.apache.wicket.IPageFactory;
 import org.apache.wicket.Page;
-import org.apache.wicket.authorization.strategies.role.Roles;
-import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
@@ -33,6 +33,7 @@ import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.AbstractReadOnlyModel;
+import org.apache.wicket.request.component.IRequestablePage;
 
 /**
  * Displays sign in and out links, as well as current user if any.
@@ -47,11 +48,12 @@ public abstract class DataUserStatusPanelBase<T extends DataUser> extends Panel 
 	 * Constructs sign in and out links.
 	 * @param id Wicket id
 	 */
-	public DataUserStatusPanelBase(String id) {
+	public DataUserStatusPanelBase(final String id) {
 		super(id);
 
-		WebMarkupContainer wrapper = new WebMarkupContainer("signedInWrapper") {
-			public boolean isVisible() {
+		final WebMarkupContainer wrapper = new WebMarkupContainer("signedInWrapper") {
+			@Override
+      public boolean isVisible() {
 				return getAuthSession().isSignedIn();
 			}
 		};
@@ -80,7 +82,7 @@ public abstract class DataUserStatusPanelBase<T extends DataUser> extends Panel 
 			}
 			@Override
 			public boolean isVisible() {
-				T user = ((AuthSession<T>) getSession()).getUser();
+				final T user = ((AuthSession<T>) getSession()).getUser();
 				return user != null && user.hasRole(Roles.ADMIN);
 			}
 		}.add(new Label("text", getString("data.auth.status.admin", null, "Admin"))));
@@ -95,13 +97,13 @@ public abstract class DataUserStatusPanelBase<T extends DataUser> extends Panel 
 
 		add(getSignInLink("signIn").add(new Label("text", getString("data.auth.status.sign_in", null, "Sign in"))));
 	}
-	
-	/** 
+
+	/**
 	 * @param returnPage current page, to be returned to after profile update
-	 * @return new page instance for user profile 
+	 * @return new page instance for user profile
 	 */
 	protected abstract WebPage profilePage(ReturnPage returnPage);
-	
+
 	/** @return page class for user administration */
 	protected abstract Class<? extends WebPage> adminPageClass();
 
@@ -110,12 +112,15 @@ public abstract class DataUserStatusPanelBase<T extends DataUser> extends Panel 
 	 * to intercept page so that user will return to current page once signed in. Override
 	 * for other behavior.
 	 */
-	protected Link getSignInLink(String id) {
+	protected Link getSignInLink(final String id) {
 		return new Link(id) {
 			@Override
 			public void onClick() {
-				redirectToInterceptPage(getSession().getPageFactory().newPage(
-						((AuthApplication<T>)getApplication()).getSignInPageClass()));
+				final IPageFactory pageFactory = getSession().getPageFactory();
+        final IRequestablePage newPage = pageFactory.newPage(
+						((AuthApplication<T>) getApplication()).getSignInPageClass());
+        //TODO
+        redirectToInterceptPage((Page) newPage);
 			}
 			@Override
 			public boolean isVisible() {

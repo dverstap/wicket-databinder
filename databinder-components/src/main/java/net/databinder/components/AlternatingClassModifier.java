@@ -29,6 +29,9 @@ import org.apache.wicket.model.AbstractReadOnlyModel;
  * @author Nathan Hamblen
  */
 public class AlternatingClassModifier extends AttributeModifier {
+
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * Constructs AttributeModifier for "class" with values "a" or "b".
 	 * @param item Object whose index determines class value.
