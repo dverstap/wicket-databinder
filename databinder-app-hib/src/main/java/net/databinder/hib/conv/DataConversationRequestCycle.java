@@ -24,6 +24,8 @@ import net.databinder.hib.conv.components.IConversationPage;
 
 import org.apache.wicket.Page;
 import org.apache.wicket.request.cycle.RequestCycleContext;
+import org.hibernate.FlushMode;
+import org.hibernate.HibernateException;
 import org.hibernate.context.ManagedSessionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,50 +64,49 @@ public class DataConversationRequestCycle extends DataRequestCycle {
   @Override
   public void dataSessionRequested(final Object key) {
     // TODO
-    // Page page = getResponsePage();
-    // if (page == null) {
-    // page = getRequest().getPage();
-    // }
-    //
-    // if (page == null) {
-    // final Class pageClass = getResponsePageClass();
-    // if (pageClass != null) {
-    // openHibernateSession(key);
-    // // set to manual if we are going to a conv. page
-    // if (IConversationPage.class.isAssignableFrom(pageClass)) {
-    // Databinder.getHibernateSession(key).setFlushMode(FlushMode.MANUAL);
-    // }
-    // }
-    // return;
-    // }
-    //
-    // // if continuing a conversation page
-    // if (page instanceof IConversationPage) {
-    // // look for existing session
-    // final IConversationPage convPage = (IConversationPage) page;
-    // org.hibernate.classic.Session sess =
-    // convPage.getConversationSession(key);
-    //
-    // // if usable session exists, try to open txn, bind, and return
-    // if (sess != null && sess.isOpen()) {
-    // try {
-    // sess.beginTransaction();
-    // ManagedSessionContext.bind(sess);
-    // keys.add(key);
-    // return;
-    // } catch (final HibernateException e) {
-    // log.warn(
-    // "Existing session exception on beginTransation, opening new", e);
-    // }
-    // }
-    // // else start new one and set in page
-    // sess = openHibernateSession(key);
-    // sess.setFlushMode(FlushMode.MANUAL);
-    // ((IConversationPage) page).setConversationSession(key, sess);
-    // return;
-    // }
-    // // start new standard session
-    // openHibernateSession(key);
+    Page page = getResponsePage();
+    if (page == null) {
+      page = getRequestPage();
+    }
+
+    if (page == null) {
+      final Class pageClass = getResponsePageClass();
+      if (pageClass != null) {
+        openHibernateSession(key);
+        // set to manual if we are going to a conv. page
+        if (IConversationPage.class.isAssignableFrom(pageClass)) {
+          Databinder.getHibernateSession(key).setFlushMode(FlushMode.MANUAL);
+        }
+      }
+      return;
+    }
+
+    // if continuing a conversation page
+    if (page instanceof IConversationPage) {
+      // look for existing session
+      final IConversationPage convPage = (IConversationPage) page;
+      org.hibernate.classic.Session sess = convPage.getConversationSession(key);
+
+      // if usable session exists, try to open txn, bind, and return
+      if (sess != null && sess.isOpen()) {
+        try {
+          sess.beginTransaction();
+          ManagedSessionContext.bind(sess);
+          keys.add(key);
+          return;
+        } catch (final HibernateException e) {
+          log.warn(
+              "Existing session exception on beginTransation, opening new", e);
+        }
+      }
+      // else start new one and set in page
+      sess = openHibernateSession(key);
+      sess.setFlushMode(FlushMode.MANUAL);
+      ((IConversationPage) page).setConversationSession(key, sess);
+      return;
+    }
+    // start new standard session
+    openHibernateSession(key);
   }
 
   /**
@@ -147,30 +148,44 @@ public class DataConversationRequestCycle extends DataRequestCycle {
     }
   }
 
-  // TODO
-  // /**
-  // * Closes and reopens Hibernate session for this Web session. Unrelated
-  // models
-  // * may try to load themselves after this point.
-  // */
-  // @Override
-  // public Page onRuntimeException(final Page page, final RuntimeException e) {
-  // for (final Object key : keys) {
-  // if (Databinder.hasBoundSession(key)) {
-  // final Session sess = Databinder.getHibernateSession(key);
-  // try {
-  // if (sess.getTransaction().isActive()) {
-  // sess.getTransaction().rollback();
-  // }
-  // } finally {
-  // sess.close();
-  // ManagedSessionContext.unbind(Databinder
-  // .getHibernateSessionFactory(key));
-  // }
-  // }
-  // openHibernateSession(key);
-  // }
-  // return null;
-  // }
+  private Page getResponsePage() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  private Page getRequestPage() {
+    // TODO Auto-generated method stub
+    // getRequest().getPage()
+    return null;
+  }
+
+  private Class getResponsePageClass() {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  /**
+   * Closes and reopens Hibernate session for this Web session. Unrelated models
+   * may try to load themselves after this point.
+   */
+  public Page onRuntimeException(final Page page, final RuntimeException e) {
+    for (final Object key : keys) {
+      if (Databinder.hasBoundSession(key)) {
+        final org.hibernate.classic.Session sess =
+            Databinder.getHibernateSession(key);
+        try {
+          if (sess.getTransaction().isActive()) {
+            sess.getTransaction().rollback();
+          }
+        } finally {
+          sess.close();
+          ManagedSessionContext.unbind(Databinder
+              .getHibernateSessionFactory(key));
+        }
+      }
+      openHibernateSession(key);
+    }
+    return null;
+  }
 
 }
