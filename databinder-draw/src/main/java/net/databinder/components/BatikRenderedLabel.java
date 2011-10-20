@@ -26,54 +26,56 @@ import org.apache.wicket.util.string.Strings;
  * @author Nathan Hamblen
  */
 public class BatikRenderedLabel extends RenderedLabel {
-	public BatikRenderedLabel(String id) {
+	public BatikRenderedLabel(final String id) {
 		super(id);
 	}
-	public BatikRenderedLabel(String id, boolean shareResource) {
+	public BatikRenderedLabel(final String id, final boolean shareResource) {
 		super(id, shareResource);
 	}
-	public BatikRenderedLabel(String id, IModel model) {
+	public BatikRenderedLabel(final String id, final IModel model) {
 		super(id, model);
 	}
-	public BatikRenderedLabel(String id, IModel model, boolean shareResource) {
+	public BatikRenderedLabel(final String id, final IModel model, final boolean shareResource) {
 		super(id, model, shareResource);
 	}
 
 
-	public static void loadSharedResources(String text, Font font, Color color, Color backgroundColor, Integer maxWidth) {
+	public static void loadSharedResources(final String text, final Font font, final Color color, final Color backgroundColor, final Integer maxWidth) {
 		loadSharedResources(new BatikRenderedTextImageResource(), text, font, color, backgroundColor, maxWidth);
 	}
 
 	@Override
-	protected RenderedTextImageResource newRenderedTextImageResource(boolean isShared) {
-		RenderedTextImageResource res = new BatikRenderedTextImageResource();
-		res.setCacheable(isShared);
+	protected RenderedTextImageResource newRenderedTextImageResource(final boolean isShared) {
+		final RenderedTextImageResource res = new BatikRenderedTextImageResource();
+//		res.setCacheable(isShared);
 		res.setState(this);
 		return res;
 	}
 
-	
+
 	protected static class BatikRenderedTextImageResource extends RenderedTextImageResource {
-		
+
+		@Override
 		protected List<AttributedCharacterIterator> getAttributedLines() {
-			if (Strings.isEmpty(text))
+			if (Strings.isEmpty(text)) {
 				return null;
-			AttributedString attributedText = new AttributedString(text);
-			
-			List<GVTFont> fonts = new ArrayList<GVTFont>(1);
+			}
+			final AttributedString attributedText = new AttributedString(text);
+
+			final List<GVTFont> fonts = new ArrayList<GVTFont>(1);
 			fonts.add(new AWTGVTFont(font));
 			attributedText.addAttribute(StrokingTextPainter.GVT_FONTS, fonts);
-			
-			TextPaintInfo tpi = new TextPaintInfo();
+
+			final TextPaintInfo tpi = new TextPaintInfo();
 			tpi.visible = true;
 			tpi.fillPaint = color;
 			attributedText.addAttribute(StrokingTextPainter.PAINT_INFO, tpi);
 
 			return splitAtNewlines(attributedText, text);
 		}
-		
+
 		@Override
-		protected boolean render(Graphics2D graphics) {
+		protected boolean render(final Graphics2D graphics) {
 			final int width = getWidth(), height = getHeight();
 
 			// draw background if not null, otherwise leave transparent
@@ -84,19 +86,20 @@ public class BatikRenderedLabel extends RenderedLabel {
 
 			// render as a 1x1 pixel if text is empty
 			if (Strings.isEmpty(text)) {
-				if (width == 1 && height == 1)
+				if (width == 1 && height == 1) {
 					return true;
+				}
 				setWidth(1);
 				setHeight(1);
 				return false;
 			}
-			
+
 			// Get size of text
 			graphics.setFont(font);
 			final FontMetrics fontMetrics = graphics.getFontMetrics();
 
-			List<AttributedCharacterIterator> attributedLines = getAttributedLines();
-			
+			final List<AttributedCharacterIterator> attributedLines = getAttributedLines();
+
 			// each one of these is needed for a unhinted, anti-aliased display
 			graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 					RenderingHints.VALUE_ANTIALIAS_ON);
@@ -107,23 +110,23 @@ public class BatikRenderedLabel extends RenderedLabel {
 
 			 // TODO: maxwidth wrapping layout, format string processing
 
-			float lineHeight = fontMetrics.getHeight(),
+			final float lineHeight = fontMetrics.getHeight(),
 				spare = fontMetrics.getMaxAscent() - fontMetrics.getAscent()
 					+ fontMetrics.getMaxDescent() - fontMetrics.getDescent(),
-				neededHeight = attributedLines.size() * lineHeight + spare,
-				neededWidth = 0f, 
-				y = fontMetrics.getMaxAscent();
-			
-			for (AttributedCharacterIterator line : attributedLines) {
-				TextNode node = new TextNode();
+				neededHeight = attributedLines.size() * lineHeight + spare;
+			float neededWidth = 0f, y = fontMetrics.getMaxAscent();
+
+			for (final AttributedCharacterIterator line : attributedLines) {
+				final TextNode node = new TextNode();
 				node.setLocation(new Point(0, (int) y));
 				node.setAttributedCharacterIterator(line);
 				node.getTextPainter().paint(node, graphics);
-				
-				float w = (float) node.getTextPainter().getBounds2D(node).getWidth() + 4f;
-				if (w > neededWidth)
+
+				final float w = (float) node.getTextPainter().getBounds2D(node).getWidth() + 4f;
+				if (w > neededWidth) {
 					neededWidth = w;
-				
+				}
+
 				y += lineHeight;
 			}
 			if (neededWidth > width || neededHeight > height) {
@@ -132,7 +135,7 @@ public class BatikRenderedLabel extends RenderedLabel {
 				return false;
 			}
 
-			return true;		
+			return true;
 		}
 	}
 

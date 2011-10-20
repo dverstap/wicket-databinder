@@ -12,37 +12,38 @@ import org.apache.wicket.model.CompoundPropertyModel;
 
 /** Form to be used with a single object, wraps in a compound property model. */
 @SuppressWarnings("unchecked")
-public class DataForm<T extends RawEntity<K>, K extends Serializable> 
+public class DataForm<T extends RawEntity<K>, K extends Serializable>
 		extends TransactionalForm<T> {
-	public DataForm(String id, Class entityType) {
+	public DataForm(final String id, final Class entityType) {
 		super(id, new CompoundPropertyModel(new EntityModel(entityType)));
 	}
-	
-	public DataForm(String id, EntityModel entityModel) {
+
+	public DataForm(final String id, final EntityModel entityModel) {
 		super(id, new CompoundPropertyModel(entityModel));
 	}
-	
+
 	/** Default implementation saves object if bound, otherwise creates new object using model's fieldMap. */
 	@Override
-	protected void inSubmitTransaction(EntityManager entityManager) throws SQLException {
-		if (getEntityModel().isBound())
+	protected void inSubmitTransaction(final EntityManager entityManager) throws SQLException {
+		if (getEntityModel().isBound()) {
 			((RawEntity)getModelObject()).save();
-		else
+		} else {
 			setModelObject(entityManager.create(getEntityModel().getEntityType(), getEntityModel().getFieldMap()));
+		}
 	}
-	
+
 	public EntityModel<T, K> getEntityModel() {
 		return (EntityModel<T, K>) ((CompoundPropertyModel) getModel()).getChainedModel();
 	}
-	
+
 	/** Button to delete this form's model object. */
 	public class DeleteButton extends TransactionalButton {
-		public DeleteButton(String id) {
+		public DeleteButton(final String id) {
 			super(id);
 			setDefaultFormProcessing(false);
 		}
 		@Override
-		protected void inSubmitTransaction(EntityManager entityManager) throws SQLException {
+		protected void inSubmitTransaction(final EntityManager entityManager) throws SQLException {
 			Databinder.getEntityManager().delete((RawEntity)DataForm.this.getModelObject());
 		}
 		@Override
@@ -55,5 +56,5 @@ public class DataForm<T extends RawEntity<K>, K extends Serializable>
 			return getEntityModel().isBound();
 		}
 	}
-	
+
 }

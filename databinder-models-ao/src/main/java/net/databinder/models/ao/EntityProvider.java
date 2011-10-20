@@ -11,54 +11,55 @@ import net.java.ao.RawEntity;
 
 import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.util.lang.Objects;
+import org.apache.wicket.util.lang.WicketObjects;
 
 @SuppressWarnings("unchecked")
 public class EntityProvider extends PropertyDataProvider {
-	
-	private Class entityType;
-	private Query query;
+
+	private final Class entityType;
+	private final Query query;
 	private Object managerKey;
-	
-	public EntityProvider(Class entityType) {
+
+	public EntityProvider(final Class entityType) {
 		this (entityType, Query.select());
 	}
-	
-	public EntityProvider(Class entityType, Query query) {
+
+	public EntityProvider(final Class entityType, final Query query) {
 		this.entityType = entityType;
 		this.query = query;
 	}
-	
-	public Iterator iterator(int first, int count) {
+
+	public Iterator iterator(final int first, final int count) {
 		try {
-			Query q = ((Query) Objects.cloneObject(query)).offset(first).limit(count);
-			
+			final Query q = ((Query) WicketObjects.cloneObject(query)).offset(first).limit(count);
+
 			return Arrays.asList(Databinder.getEntityManager(managerKey).find(entityType, q)).iterator();
-		} catch (SQLException e) {
+		} catch (final SQLException e) {
 			throw new WicketRuntimeException(e);
 		}
 	}
-	
+
 	public int size() {
 		try {
 			return Databinder.getEntityManager(managerKey).count(entityType, query);
-		} catch (SQLException e) {
+		} catch (final SQLException e) {
 			throw new WicketRuntimeException(e);
 		}
 	}
-	
+
 	@Override
-	protected IModel dataModel(Object object) {
+	protected IModel dataModel(final Object object) {
 		return new EntityModel((RawEntity)object);
 	}
 
+	@Override
 	public void detach() { }
 
 	public Object getManagerKey() {
 		return managerKey;
 	}
 
-	public void setManagerKey(Object managerKey) {
+	public void setManagerKey(final Object managerKey) {
 		this.managerKey = managerKey;
 	}
 }
