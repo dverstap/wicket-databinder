@@ -43,6 +43,9 @@ public abstract class AuthDataSessionBase<T extends DataUser> extends WebSession
     super(request);
   }
 
+  /**
+   * @return current app
+   */
   protected AuthApplication<T> getApp() {
     return (AuthApplication<T>) Application.get();
   }

@@ -1,0 +1,12 @@
+.classpath
+.project
+.settings
+target
+<<<<<<< HEAD
+=======
+target/*
+*.classpath
+*.settings
+*.project
+>>>>>>> eferreira-master
+lib_managed/

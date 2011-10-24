@@ -63,6 +63,10 @@ public abstract class DataApplicationBase extends WebApplication {
     return converterLocator;
   }
 
+  /**
+   * If <code>isCookielessSupported()</code> returns false, this method returns
+   * a custom WebResponse that disables URL rewriting.
+   */
   @Override
   protected WebResponse newWebResponse(final WebRequest webRequest, final HttpServletResponse httpServletResponse) {
     final WebResponse newWebResponse = super.newWebResponse(webRequest, httpServletResponse);
