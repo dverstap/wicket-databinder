@@ -3,11 +3,11 @@ package net.databinder.auth.components.jpa;
 import net.databinder.auth.components.DataSignInPageBase;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.PageParameters;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 /**
  * Sign in and registration page. Replaceable String resources:
- * 
+ *
  * <pre>
  * data.auth.title.sign_in
  * data.auth.pre_register_link
