@@ -29,6 +29,7 @@ import net.databinder.jpa.conv.components.IConversationPage;
 
 import org.apache.wicket.Page;
 import org.apache.wicket.request.cycle.RequestCycleContext;
+import org.apache.wicket.request.handler.RenderPageRequestHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,6 +70,7 @@ public class DataConversationRequestCycle extends DataRequestCycle {
 	 */
 	public void dataEntityMangerRequested(final String key) {
 		Page page = getResponsePage();
+
 		if (page == null) {
 			page = getRequestPage();
 		}
@@ -79,8 +81,8 @@ public class DataConversationRequestCycle extends DataRequestCycle {
 				openEntityManager(key);
 				// set to manual if we are going to a conv. page
 				if (IConversationPage.class.isAssignableFrom(pageClass)) {
-					Databinder.getEntityManager(key).setFlushMode(
-							FlushModeType.AUTO);
+					final EntityManager em = Databinder.getEntityManager(key);
+					em.setFlushMode(FlushModeType.AUTO);
 				}
 			}
 			return;
@@ -180,7 +182,11 @@ public class DataConversationRequestCycle extends DataRequestCycle {
 	}
 
 	private Page getResponsePage() {
-		// TODO Auto-generated method stub
+		final Object page = getActiveRequestHandler();
+		if (page instanceof RenderPageRequestHandler) {
+            return  (Page) ((RenderPageRequestHandler)page).getPage();
+		}
+		log.debug("Page not found in the active request handler");
 		return null;
 	}
 
@@ -192,6 +198,6 @@ public class DataConversationRequestCycle extends DataRequestCycle {
 
 	private Class getResponsePageClass() {
 		// TODO Auto-generated method stub
-		return null;
+		return getResponsePage().getClass();
 	}
 }
