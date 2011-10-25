@@ -17,7 +17,6 @@ package net.databinder.components.jpa;
 import java.io.Serializable;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityNotFoundException;
 
 import net.databinder.jpa.Databinder;
 import net.databinder.models.jpa.JPAObjectModel;
@@ -216,7 +215,7 @@ public class DataForm<T> extends DataFormBase<T> {
    * @return true if object was newly saved
    */
   protected boolean saveIfNew(final JPAObjectModel<T> model, final EntityManager em) {
-	  if (!exists(em, model)) {
+	  if (model.getIdentifier() != null) {
       onBeforeSave(model);
       em.persist(model.getObject());
       // updating binding status; though it will happen on detach
@@ -226,15 +225,6 @@ public class DataForm<T> extends DataFormBase<T> {
     } else {
       em.merge(model.getObject());
       return false;
-    }
-  }
-
-  private boolean exists(final EntityManager em, final JPAObjectModel<T> model) {
-	try {
-	  return em.getReference(model.getEntityClass(),
-			  model.getIdentifier()) != null;
-	} catch (final EntityNotFoundException e) {
-	 return false;
     }
   }
 
