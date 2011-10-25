@@ -17,6 +17,7 @@ package net.databinder.components.jpa;
 import java.io.Serializable;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityNotFoundException;
 
 import net.databinder.jpa.Databinder;
 import net.databinder.models.jpa.JPAObjectModel;
@@ -185,8 +186,9 @@ public class DataForm<T> extends DataFormBase<T> {
    */
   protected boolean commitFormIfValid() {
     if (!hasError()) {
-      savePersistentObjectIfNew();
-      commitTransactionIfValid(); // flush and commit EntityManager
+      final EntityManager em = Databinder.getEntityManager();
+      savePersistentObjectIfNew(em);
+      commitTransactionIfValid(em); // flush and commit EntityManager
       // if version is present it should have changed
       if (version != null) {
         updateVersion();
@@ -201,30 +203,42 @@ public class DataForm<T> extends DataFormBase<T> {
    * EntityManager. If the a sub-class is responsible for more than one
    * {@link JPAObjectModel}, it may override to call
    * {@link #saveIfNew(JPAObjectModel)} on each.
+ * @param em
    * @return true if object was newly saved
    */
-  protected boolean savePersistentObjectIfNew() {
-    return saveIfNew(getPersistentObjectModel());
+  protected boolean savePersistentObjectIfNew(final EntityManager em) {
+    return saveIfNew(getPersistentObjectModel(), em);
   }
 
   /**
    * Saves model's entity if it is not already contained in the EntityManager.
+ * @param em2
    * @return true if object was newly saved
    */
-  protected boolean saveIfNew(final JPAObjectModel<T> model) {
-    final EntityManager em = Databinder.getEntityManager();
-    if (!em.contains(model.getObject())) {
+  protected boolean saveIfNew(final JPAObjectModel<T> model, final EntityManager em) {
+	  if (!exists(em, model)) {
       onBeforeSave(model);
       em.persist(model.getObject());
       // updating binding status; though it will happen on detach
       // some UI components may like to know sooner.
       getPersistentObjectModel().checkBinding();
       return true;
+    } else {
+      em.merge(model.getObject());
+      return false;
     }
-    return false;
   }
 
-  /**
+  private boolean exists(final EntityManager em, final JPAObjectModel<T> model) {
+	try {
+	  return em.getReference(model.getEntityClass(),
+			  model.getIdentifier()) != null;
+	} catch (final EntityNotFoundException e) {
+	 return false;
+    }
+  }
+
+/**
    * Called before saving any new object by {@link #saveIfNew(JPAObjectModel)}.
    * This is a good time to make last minute changes to new objects that
    * couldn't be easily serialized (adding relationships to existing persistent

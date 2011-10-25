@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   
   <artifactId>databinder-app-jpa</artifactId>
-  <name>Databinder appkit / JPA 2</name>
+  <name>Databinder appkit / JPA </name>
   
   <parent>
     <groupId>net.databinder</groupId>

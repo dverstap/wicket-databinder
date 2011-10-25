@@ -1,6 +1,7 @@
 package net.databinder.components.jpa;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceException;
 
 import net.databinder.jpa.Databinder;
@@ -44,21 +45,25 @@ public class DataFormBase<T> extends Form<T> {
   /** Default implementation calls {@link #commitTransactionIfValid()}. */
   @Override
   protected void onSubmit() {
-    commitTransactionIfValid();
+   final EntityManager em = Databinder.getEntityManager(factoryKey);
+    commitTransactionIfValid(em);
   }
 
   /**
    * Commit transaction if no errors are registered for any form component.
+ * @param em
    * @return true if transaction was committed
    */
-  protected boolean commitTransactionIfValid() {
+  protected boolean commitTransactionIfValid(final EntityManager em) {
     try {
       if (!hasError()) {
-        final EntityManager em = Databinder.getEntityManager(factoryKey);
-        em.flush(); // needed for conv. EntityManagers, harmless otherwise
-        onBeforeCommit();
-        em.getTransaction().commit();
-        em.getTransaction().begin();
+          final EntityTransaction tx = em.getTransaction();
+          if(!tx.isActive()) {
+			tx.begin();
+		}
+          em.flush(); // needed for conv. EntityManagers, harmless otherwise
+          onBeforeCommit();
+          tx.commit();
         return true;
       }
     } catch (final PersistenceException e) {

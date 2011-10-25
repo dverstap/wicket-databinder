@@ -355,4 +355,9 @@ BindingModel<T> {
   public void setRetainUnsaved(final boolean retainUnsaved) {
     this.retainUnsaved = retainUnsaved;
   }
+
+  public Class<T> getEntityClass() {
+	return entityClass;
+  }
+
 }
