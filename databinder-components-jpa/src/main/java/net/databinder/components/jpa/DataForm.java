@@ -215,7 +215,7 @@ public class DataForm<T> extends DataFormBase<T> {
    * @return true if object was newly saved
    */
   protected boolean saveIfNew(final JPAObjectModel<T> model, final EntityManager em) {
-	  if (model.getIdentifier() != null) {
+	  if (model.getIdentifier() == null) {
       onBeforeSave(model);
       em.persist(model.getObject());
       // updating binding status; though it will happen on detach
