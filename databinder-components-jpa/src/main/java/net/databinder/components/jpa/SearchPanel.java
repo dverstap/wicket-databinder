@@ -135,8 +135,7 @@ public abstract class SearchPanel<T extends Serializable> extends Panel {
           resetSearchModelObject();
           final CriteriaDefinition<T> cd = criteriaDefinition;
           cd.cleanLikePredicates();
-          target.addComponent(searchWrap);
-          target.addComponent(clearWrap);
+          target.add(searchWrap, clearWrap);
           onUpdate(target);
         }
 
