@@ -114,6 +114,4 @@ public abstract class DataApplicationBase extends WebApplication {
     return RuntimeConfigurationType.DEVELOPMENT.equals(getConfigurationType());
   }
 
-  protected abstract RequestCycle newRequestCycle(RequestCycleContext requestCycleContext);
-
 }

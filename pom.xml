@@ -17,7 +17,7 @@
     </license>
   </licenses>
   <properties>
-    <wicket.version>1.5.0</wicket.version>
+    <wicket.version>1.5.7</wicket.version>
     <scala.version>2.7.5</scala.version>
     <!-- default logging versions and options -->
     <slf4j.version>1.6.1</slf4j.version>

@@ -2,6 +2,7 @@ package net.databinder.cay;
 
 import net.databinder.DataApplicationBase;
 
+import org.apache.wicket.IRequestCycleProvider;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.cycle.RequestCycleContext;
 
@@ -14,11 +15,15 @@ public abstract class DataApplication extends DataApplicationBase {
   @Override
   protected void dataInit() {
   }
-
-  /** Returns DataRequestCycle instance for Cayenne. */
   @Override
-  public RequestCycle newRequestCycle(
-      final RequestCycleContext requestCycleContext) {
-    return new DataRequestCycle(requestCycleContext);
+  protected void internalInit() {
+    super.internalInit();
+    setRequestCycleProvider(new IRequestCycleProvider() {
+
+      public RequestCycle get(final RequestCycleContext context) {
+        return new DataRequestCycle(context);
+      }
+    });
   }
+  
 }
