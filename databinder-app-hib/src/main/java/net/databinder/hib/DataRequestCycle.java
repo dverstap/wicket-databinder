@@ -25,7 +25,7 @@ import net.databinder.CookieRequestCycle;
 import org.apache.wicket.request.cycle.RequestCycleContext;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.context.ManagedSessionContext;
+import org.hibernate.context.internal.ManagedSessionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,8 +80,8 @@ public class DataRequestCycle extends CookieRequestCycle implements
    * @param key object, or null for the default factory
    * @return newly opened session
    */
-  protected org.hibernate.classic.Session openHibernateSession(final Object key) {
-    final org.hibernate.classic.Session sess =
+  protected org.hibernate.Session openHibernateSession(final Object key) {
+    final org.hibernate.Session sess =
         Databinder.getHibernateSessionFactory(key).openSession();
     sess.beginTransaction();
     ManagedSessionContext.bind(sess);

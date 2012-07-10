@@ -21,6 +21,8 @@ package net.databinder.components.hib;
 import java.io.IOException;
 import java.sql.Blob;
 
+import net.databinder.hib.Databinder;
+
 import org.hibernate.Hibernate;
 
 import org.apache.wicket.markup.html.form.FormComponentPanel;
@@ -62,8 +64,8 @@ public class BlobUploadField extends FormComponentPanel<Blob> {
 	public void updateModel() {
 		try {
 			if (uploadField.getFileUpload() != null) {
-				setModelObject(Hibernate.createBlob(
-					uploadField.getFileUpload().getInputStream()));
+				setModelObject(Hibernate.getLobCreator(Databinder.getHibernateSession()).createBlob(
+					uploadField.getFileUpload().getInputStream(),-1));
 				onUpdated();
 			}
 		} catch (IOException e) {

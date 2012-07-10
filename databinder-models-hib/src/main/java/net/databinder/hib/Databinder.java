@@ -25,7 +25,7 @@ import org.apache.wicket.Application;
 import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.hibernate.SessionFactory;
-import org.hibernate.context.ManagedSessionContext;
+import org.hibernate.context.internal.ManagedSessionContext;
 
 /**
  * Provides access to application-bound Hibernate session factories and current sessions.
@@ -63,14 +63,14 @@ public class Databinder {
 	/**
 	 * @return default Hibernate session bound to current thread
 	 */
-	public static org.hibernate.classic.Session getHibernateSession() {
+	public static org.hibernate.Session getHibernateSession() {
 		return getHibernateSession(null);
 	}
 	/**
 	 * @param key or null for the default factory
 	 * @return Hibernate session bound to current thread
 	 */
-	public static org.hibernate.classic.Session getHibernateSession(final Object key) {
+	public static org.hibernate.Session getHibernateSession(final Object key) {
 		dataSessionRequested(key);
 		return getHibernateSessionFactory(key).getCurrentSession();
 	}
@@ -141,7 +141,7 @@ public class Databinder {
 		if (ManagedSessionContext.hasBind(sf)) {
 			return unit.run(getHibernateSession(key));
 		}
-		final org.hibernate.classic.Session sess = sf.openSession();
+		final org.hibernate.Session sess = sf.openSession();
 		try {
 			sess.beginTransaction();
 			ManagedSessionContext.bind(sess);

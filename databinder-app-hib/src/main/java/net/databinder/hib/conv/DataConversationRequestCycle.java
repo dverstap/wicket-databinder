@@ -26,7 +26,7 @@ import org.apache.wicket.Page;
 import org.apache.wicket.request.cycle.RequestCycleContext;
 import org.hibernate.FlushMode;
 import org.hibernate.HibernateException;
-import org.hibernate.context.ManagedSessionContext;
+import org.hibernate.context.internal.ManagedSessionContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,7 +85,7 @@ public class DataConversationRequestCycle extends DataRequestCycle {
     if (page instanceof IConversationPage) {
       // look for existing session
       final IConversationPage convPage = (IConversationPage) page;
-      org.hibernate.classic.Session sess = convPage.getConversationSession(key);
+      org.hibernate.Session sess = convPage.getConversationSession(key);
 
       // if usable session exists, try to open txn, bind, and return
       if (sess != null && sess.isOpen()) {
@@ -120,7 +120,7 @@ public class DataConversationRequestCycle extends DataRequestCycle {
           .getHibernateSessionFactory(key))) {
         return;
       }
-      org.hibernate.classic.Session sess = Databinder.getHibernateSession(key);
+      org.hibernate.Session sess = Databinder.getHibernateSession(key);
       boolean transactionComitted = false;
       if (sess.getTransaction().isActive()) {
         sess.getTransaction().rollback();
@@ -171,7 +171,7 @@ public class DataConversationRequestCycle extends DataRequestCycle {
   public Page onRuntimeException(final Page page, final RuntimeException e) {
     for (final Object key : keys) {
       if (Databinder.hasBoundSession(key)) {
-        final org.hibernate.classic.Session sess =
+        final org.hibernate.Session sess =
             Databinder.getHibernateSession(key);
         try {
           if (sess.getTransaction().isActive()) {

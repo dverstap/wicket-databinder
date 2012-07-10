@@ -20,6 +20,7 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.interfaces.RSAPublicKey;
+import java.util.Locale;
 
 import javax.crypto.Cipher;
 
@@ -37,6 +38,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.request.resource.JavaScriptResourceReference;
 import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.util.convert.ConversionException;
+import org.apache.wicket.util.convert.IConverter;
 import org.apache.wicket.util.crypt.Base64;
 
 /**
@@ -118,29 +120,37 @@ public class RSAPasswordTextField extends PasswordTextField implements
             new SecureRandom().nextLong()).toByteArray()));
   }
 
+  /* (non-Javadoc)
+   * @see org.apache.wicket.Component#getConverter(java.lang.Class)
+   */
   @Override
-  protected String convertValue(final String[] value)
-      throws ConversionException {
-    final String enc = super.convertValue(value);
-    if (enc == null) {
-      return null;
-    }
-    try {
-      final Cipher rsa = Cipher.getInstance("RSA");
-      rsa.init(Cipher.DECRYPT_MODE, keypair.getPrivate());
-      final String dec = new String(rsa.doFinal(hex2data(enc)));
+  public IConverter<String> getConverter(Class type) {
+    return new IConverter<String>() {
+      
+      public String convertToObject(String enc, Locale locale) {
+        if (enc == null) return null;
+        try {
+          final Cipher rsa = Cipher.getInstance("RSA");
+          rsa.init(Cipher.DECRYPT_MODE, keypair.getPrivate());
+          final String dec = new String(rsa.doFinal(hex2data(enc)));
 
-      final String[] toks = dec.split("\\|", 2);
-      if (toks.length != 2 || !toks[0].equals(challenge)) {
-        throw new ConversionException("incorrect or empy challenge value")
-            .setResourceKey("RSAPasswordTextField.failed.challenge");
+          final String[] toks = dec.split("\\|", 2);
+          if (toks.length != 2 || !toks[0].equals(challenge)) {
+            throw new ConversionException("incorrect or empty challenge value")
+                .setResourceKey("RSAPasswordTextField.failed.challenge");
+          }
+          return toks[1];
+        } catch (final GeneralSecurityException e) {
+          throw new ConversionException(e)
+              .setResourceKey("RSAPasswordTextField.failed.challenge");
+        }
+      }
+      
+      public String convertToString(String value, Locale locale) {
+        return value;
       }
 
-      return toks[1];
-    } catch (final GeneralSecurityException e) {
-      throw new ConversionException(e)
-          .setResourceKey("RSAPasswordTextField.failed.challenge");
-    }
+    };
   }
 
   @Override

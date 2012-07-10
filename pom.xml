@@ -25,7 +25,7 @@
     <log.path>${project.build.directory}/logs</log.path>
 
     <!-- default hibernate versions -->
-    <hibernate.version>3.5.6-Final</hibernate.version>
+    <hibernate.version>4.1.4.Final</hibernate.version>
     <hibernate.core.version>${hibernate.version}</hibernate.core.version>
     <hibernate.annotations.version>${hibernate.version}</hibernate.annotations.version>
     <hibernate.entitymanager.version>${hibernate.version}</hibernate.entitymanager.version>
