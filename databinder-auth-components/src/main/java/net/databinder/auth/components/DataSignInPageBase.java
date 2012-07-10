@@ -21,6 +21,7 @@ package net.databinder.auth.components;
 import net.databinder.auth.AuthApplication;
 import net.databinder.auth.AuthSession;
 import net.databinder.auth.data.DataUser;
+import net.databinder.components.DataStyleLink;
 import net.databinder.components.SourceList;
 
 import org.apache.wicket.Application;
@@ -84,14 +85,13 @@ public abstract class DataSignInPageBase<T extends DataUser> extends WebPage {
           getAuthSession().signIn(user, true);
         }
 				setResponsePage(((Application)app).getHomePage());
-				//TODO setRedirect(true);
 				return;
 			}
 		}
 
 		add(new Label("title", new ResourceModel("data.auth.title.sign_in", "Please sign in")));
 
-	//TODO	add(new DataStyleLink("dataStylesheet"));
+		add(new DataStyleLink("dataStylesheet"));
 
 		sourceList = new SourceList();
 

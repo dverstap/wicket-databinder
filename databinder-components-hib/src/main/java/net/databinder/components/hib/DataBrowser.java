@@ -17,6 +17,7 @@ package net.databinder.components.hib;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.databinder.components.DataStyleLink;
 import net.databinder.hib.Databinder;
 
 import org.apache.wicket.markup.html.WebPage;
@@ -44,7 +45,7 @@ public class DataBrowser<T> extends WebPage {
   public DataBrowser(final boolean allowAccess) {
 
     if (allowAccess) {
-      // TODO add(new DataStyleLink("css"));
+      add(new DataStyleLink("css"));
       add(new QueryPanel("queryPanel"));
       add(new ListView<T>("entities", new LoadableDetachableModel<List<T>>() {
         private static final long serialVersionUID = 1L;

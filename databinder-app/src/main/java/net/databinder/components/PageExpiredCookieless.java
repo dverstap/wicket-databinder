@@ -28,7 +28,7 @@ import org.apache.wicket.markup.html.WebPage;
 public class PageExpiredCookieless extends WebPage {
 
 	public PageExpiredCookieless() {
-	 //TODO	add(new DataStyleLink("css"));
+	  add(new DataStyleLink("css"));
 		add(homePageLink("homePageLink"));
 	}
 

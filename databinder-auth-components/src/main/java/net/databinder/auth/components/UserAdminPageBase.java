@@ -8,6 +8,7 @@ import net.databinder.auth.AuthApplication;
 import net.databinder.auth.AuthSession;
 import net.databinder.auth.data.DataUser;
 import net.databinder.auth.valid.EqualPasswordConvertedInputValidator;
+import net.databinder.components.DataStyleLink;
 import net.databinder.components.ModelSourceListPanel;
 import net.databinder.components.NullPlug;
 import net.databinder.components.UnbindLink;
@@ -52,7 +53,7 @@ public abstract class UserAdminPageBase<T extends DataUser> extends WebPage {
 	}
 
 	public UserAdminPageBase() {
-	//TODO	add(new DataStyleLink("css"));
+	  add(new DataStyleLink("css"));
 		add(new Label("title", new ResourceModel("data.auth.user_admin", "User Administration")));
 		add(new Label("heading", new ResourceModel("data.auth.user_admin", "User Administration")));
 		final Class<T> userClass =  ((AuthApplication<T>) getApplication()).getUserClass();
