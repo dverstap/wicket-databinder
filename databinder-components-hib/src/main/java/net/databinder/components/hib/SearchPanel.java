@@ -155,7 +155,7 @@ public abstract class SearchPanel extends Panel {
 			search.add(new AjaxOnKeyPausedUpdater() {
 				@Override
         protected void onUpdate(final AjaxRequestTarget target) {
-					target.addComponent(clearWrap);
+					target.add(clearWrap);
 					SearchPanel.this.onUpdate(target);
 				}
 			});

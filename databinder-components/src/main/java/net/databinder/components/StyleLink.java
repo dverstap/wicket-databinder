@@ -43,7 +43,7 @@ public class StyleLink extends WebMarkupContainer {
 			public void renderHead(final Component component,
 					final IHeaderResponse response) {
 				response.renderCSSReference(new CssResourceReference(pageClass,
-						"cssResource"));
+						pageClass.getSimpleName()+".css"));
 			}
 		});
 	}
@@ -55,8 +55,7 @@ public class StyleLink extends WebMarkupContainer {
 			@Override
 			public void renderHead(final Component component,
 					final IHeaderResponse response) {
-				response.renderCSSReference(new CssResourceReference(pageClass,
-						"cssResource", getLocale(), filename, null));
+				response.renderCSSReference(new CssResourceReference(pageClass, filename));
 			}
 		});
 	}
